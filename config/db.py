@@ -1,4 +1,4 @@
-from pydantic_settings import BaseSettings
+from pydantic import BaseSettings
 
 
 class DBSettings(BaseSettings):
@@ -9,6 +9,9 @@ class DBSettings(BaseSettings):
     host: str
     port: str
 
+    class Config:
+        env_file = ".env"
+
     @property
     def db_url(self) -> str:
         """Get database URL."""
@@ -16,11 +19,6 @@ class DBSettings(BaseSettings):
             f"mysql+pymysql://{self.user}:"
             f"{self.password}@{self.host}:{self.port}/{self.db}"
         )
-
-    class Config:
-        env_prefix = "MYSQL_"
-        env_file = ".env"
-        extra = "ignore"
 
 
 def get_db_settings() -> DBSettings:

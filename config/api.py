@@ -1,4 +1,4 @@
-from pydantic_settings import BaseSettings
+from pydantic import BaseSettings
 
 
 class APISettings(BaseSettings):
@@ -11,7 +11,6 @@ class APISettings(BaseSettings):
     class Config:
         env_prefix = "API_"
         env_file = ".env"
-        extra = "ignore"
 
     @property
     def base_url(self) -> str:
