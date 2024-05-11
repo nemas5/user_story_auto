@@ -1,4 +1,7 @@
 from pydantic import BaseSettings
+from dotenv import find_dotenv, load_dotenv
+
+load_dotenv(find_dotenv(".env"))
 
 
 class DBSettings(BaseSettings):
@@ -10,6 +13,7 @@ class DBSettings(BaseSettings):
     port: str
 
     class Config:
+        env_prefix = "M_"
         env_file = ".env"
 
     @property
@@ -22,5 +26,5 @@ class DBSettings(BaseSettings):
 
 
 def get_db_settings() -> DBSettings:
-
+    """Return an instance APISettings."""
     return DBSettings()

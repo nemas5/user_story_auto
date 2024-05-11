@@ -2,7 +2,6 @@ from pydantic import BaseSettings
 
 
 class APISettings(BaseSettings):
-    """API settings."""
 
     title: str
     host: str

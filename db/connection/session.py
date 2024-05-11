@@ -8,6 +8,7 @@ from db.models import Base
 
 settings = get_db_settings()
 DATABASE_URL = settings.db_url
+#DATABASE_URL = f"mysql+pymysql://root:qwerty@127.0.0.1:3306/diploma"
 
 engine = create_engine(DATABASE_URL)
 session = sessionmaker(engine, class_=Session)
@@ -20,10 +21,11 @@ def init_db() -> None:
         conn.run_sync(Base.metadata.create_all)
 
 
-def get_session() -> Generator[Session, None]:
+def get_session():
 
     with session() as sess:
         return sess
+
 
 from sqlalchemy.sql import select
 from db.models.admin_user import AdminORM
@@ -32,4 +34,5 @@ query = (
         select(AdminORM.a_id,)
     )
 tag_list = ses.execute(query)
-print(tag_list)
+for i in tag_list:
+    print(i)
