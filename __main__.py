@@ -4,6 +4,10 @@ import os
 from flask import Flask, render_template, session
 
 from api.blueprints import list_of_blueprints
+from config import get_api_settings
+
+
+settings = get_api_settings()
 
 
 def reg_blueprints(application: Flask) -> None:
@@ -20,4 +24,4 @@ def get_app() -> Flask:
 app = get_app()
 
 if __name__ == '__main__':
-    app.run(host='127.0.0.1', port=5001, debug=True)
+    app.run(host=settings.host, port=int(settings.port), debug=True)
