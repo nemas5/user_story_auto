@@ -1,7 +1,6 @@
 import json
-import os
 
-from flask import Flask, render_template, session
+from flask import Flask
 
 from api.blueprints import list_of_blueprints
 from config import get_api_settings
@@ -22,6 +21,8 @@ def get_app() -> Flask:
 
 
 app = get_app()
+with open('data_files/db_config.json') as file:
+    app.config['db_config'] = json.load(file)
 
 if __name__ == '__main__':
     app.run(host=settings.host, port=int(settings.port), debug=True)

@@ -11,22 +11,25 @@ DATABASE_URL = settings.db_url
 #DATABASE_URL = f"mysql+pymysql://root:qwerty@127.0.0.1:3306/diploma"
 
 engine = create_engine(DATABASE_URL)
-session = sessionmaker(engine, class_=Session)
+db_session = sessionmaker(engine, class_=Session)
 
 
+'''
 def init_db() -> None:
 
     with engine.begin() as conn:
         conn.run_sync(Base.metadata.drop_all)
         conn.run_sync(Base.metadata.create_all)
+'''
 
 
 def get_session():
 
-    with session() as sess:
-        return sess
+    with db_session() as db_sess:
+        return db_sess
 
 
+'''
 from sqlalchemy.sql import select
 from db.models.admin_user import AdminORM
 ses = get_session()
@@ -36,3 +39,4 @@ query = (
 tag_list = ses.execute(query)
 for i in tag_list:
     print(i)
+'''
