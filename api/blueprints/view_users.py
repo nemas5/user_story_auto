@@ -13,3 +13,7 @@ def view_users():
     users = get_all_common(db_session)
     return users
 
+
+@blueprint_users.route('/<u_id>', methods=['GET'])
+def delete_user(u_id: str):
+    pass
