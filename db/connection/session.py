@@ -8,7 +8,7 @@ from db.models import Base
 
 settings = get_db_settings()
 DATABASE_URL = settings.db_url
-#DATABASE_URL = f"mysql+pymysql://root:qwerty@127.0.0.1:3306/diploma"
+# DATABASE_URL = f"mysql+pymysql://root:qwerty@127.0.0.1:3306/diploma"
 
 engine = create_engine(DATABASE_URL)
 db_session = sessionmaker(engine, class_=Session)
@@ -40,3 +40,4 @@ tag_list = ses.execute(query)
 for i in tag_list:
     print(i)
 '''
+

@@ -1,5 +1,5 @@
 from sqlalchemy.engine import Row
-from sqlalchemy import Session
+from sqlalchemy.orm import Session
 from sqlalchemy.sql import select
 
 from db.models import AdminORM, CommonORM
