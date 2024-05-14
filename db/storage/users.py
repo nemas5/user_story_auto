@@ -30,3 +30,10 @@ def get_common(
     found_users = session.execute(query)
     return found_users.all()
 
+
+def get_all_common(session: Session):
+    query = (
+        select(CommonORM.u_id)
+    )
+    found_users = session.execute(query)
+    return found_users.all()

@@ -30,3 +30,7 @@ def get_scenario_subs(sub: int, session: Session):
     )
     found_subs = session.execute(query).all()
     return found_subs
+
+
+def get_scenario_by_user(user: str, session: Session):
+    pass
