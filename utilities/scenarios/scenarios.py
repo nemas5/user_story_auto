@@ -20,18 +20,16 @@ class Scenario:
                 self.mains[pattern.pattern] = 0
                 for sub in pattern.data.keys():
                     self.subs[sub] = 0
-            print(self.mains, self.subs)
         else:
             scenario = get_scenario(scenario, db_session)
             print(scenario)
             mains = get_scenario_mains(scenario[0], db_session)
             self.mains = {mains[i][2]: mains[i][1] for i in range(len(mains))}
-            print(self.mains)
             self.subs = dict()
             for main in mains:
                 subs = get_scenario_subs(main[0], db_session)
                 self.subs[main[2]] = {subs[i][2]: subs[i][1] for i in range(len(subs))}
-            print(self.subs)
+        print(self.subs, self.mains)
 
 
 Scenario(1)

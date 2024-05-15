@@ -15,7 +15,7 @@ class Pattern:
 
         self.pattern = pattern[0]
         self.name = pattern[1]
-        pref = f'../../data_files/samples/{self.pattern}'
+        pref = f'data_files/samples/{self.pattern}'
         logic = get_pattern(self.pattern, db_session)
         self.data = dict()
 
@@ -24,7 +24,7 @@ class Pattern:
             self.data[i] = dict()
             self.data[i]["doc"] = doc
             self.data[i]["name"] = logic[i]
-        print(self.data)
+        # print(self.data)
 
 
 pattern_list = list()

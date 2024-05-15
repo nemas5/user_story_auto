@@ -1,6 +1,7 @@
 import json
 
 from flask import Flask
+import docx
 
 from api.blueprints import list_of_blueprints
 from config import get_api_settings
@@ -21,8 +22,8 @@ def get_app() -> Flask:
 
 
 app = get_app()
-with open('data_files/db_config.json') as file:
-    app.config['db_config'] = json.load(file)
+with open('data_files/access.json') as file:
+    app.config['access_config'] = json.load(file)
 
 if __name__ == '__main__':
     app.run(host=settings.host, port=int(settings.port), debug=True)
