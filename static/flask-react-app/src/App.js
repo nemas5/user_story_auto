@@ -41,13 +41,13 @@ function Sidebar({ isVisible, toggleSidebar }) {
     left: isVisible ? '0' : '-300px', // Изменяем left в зависимости от isVisible
     bottom: '0',
     transition: 'left 0.3s ease, width 0.3s ease', // Анимация при изменении left и width
+    zIndex: '9999', // Поднимаем панель наверх
   };
 
   const buttonStyle = {
     position: 'absolute',
     top: '10px',
-    left: '10px',
-    zIndex: '9999',
+    right: '10px', // Перемещаем кнопку в правый верхний угол
     backgroundColor: 'transparent',
     color: '#007bff',
     border: 'none',
@@ -71,17 +71,53 @@ function Sidebar({ isVisible, toggleSidebar }) {
   );
 }
 
-// Компонент рабочей страницы
-function DashboardPage({ username, toggleSidebar }) {
+function TopBar({ toggleSidebar }) {
+  const topBarStyle = {
+    background: '#007bff',
+    color: '#fff',
+    padding: '10px',
+    position: 'fixed',
+    top: '0',
+    left: '0',
+    width: '100%',
+    zIndex: '9998', // Уменьшаем z-index, чтобы не перекрывать боковую панель
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  };
+
   return (
-    <div>
-      <button className="sidebar-toggle-button" onClick={toggleSidebar}>Показать боковую панель</button>
-      <h1>Привет, {username}!</h1>
+    <div style={topBarStyle}>
+      <button className="toggle-sidebar-button" onClick={toggleSidebar}>
+        &lt; Скрыть боковую панель
+      </button>
+      <div style={{ marginRight: '20px' }}>Пользователь</div>
     </div>
   );
 }
 
-// Компонент-обертка для приложения
+function DashboardPage({ username, toggleSidebar, sidebarVisible }) {
+  const dashboardStyle = {
+    background: '#f0f0f0',
+    padding: '20px',
+    position: 'fixed',
+    top: '50px', // Отступ сверху равен высоте верхней панели
+    left: `${sidebarVisible ? '360px' : '20px'}`, // Отступ слева от боковой панели
+    bottom: '20px',
+    right: '20px', // Правый отступ равен 0, чтобы заполнить всю ширину
+    transition: 'left 0.3s ease', // Анимация при изменении отступа слева
+    borderRadius: '10px', // Скругление углов
+    zIndex: '9997', // Уменьшаем z-index, чтобы не перекрывать боковую панель
+  };
+
+  return (
+    <div style={dashboardStyle}>
+      <TopBar toggleSidebar={toggleSidebar} />
+      <h1>Привет!</h1>
+    </div>
+  );
+}
+
 function App() {
   const [loggedIn, setLoggedIn] = useState(false);
   const [username, setUsername] = useState('');
@@ -100,7 +136,7 @@ function App() {
     <div>
       {!loggedIn ?
         <LoginPage onLogin={handleLogin} /> :
-        <DashboardPage username={username} toggleSidebar={toggleSidebar} />
+        <DashboardPage username={username} toggleSidebar={toggleSidebar} sidebarVisible={sidebarVisible}/>
       }
       <Sidebar isVisible={sidebarVisible} toggleSidebar={toggleSidebar}/>
     </div>
