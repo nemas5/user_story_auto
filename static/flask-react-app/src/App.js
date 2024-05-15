@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './App.css'; // Подключаем файл стилей
 
 function LoginPage({ onLogin }) {
@@ -89,7 +89,7 @@ function TopBar({ toggleSidebar }) {
   return (
     <div style={topBarStyle}>
       <button className="toggle-sidebar-button" onClick={toggleSidebar}>
-        &lt; Скрыть боковую панель
+        Показать боковую панель
       </button>
       <div style={{ marginRight: '20px' }}>Пользователь</div>
     </div>

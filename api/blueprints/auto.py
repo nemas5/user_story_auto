@@ -17,9 +17,10 @@ def auto():
         if user is None:
             user = get_common(login, password, db_session)
             if user is None:
-                return 'no'
+                return {"response": "0"}
             session['user_group'] = 'common'
         else:
             session['user_group'] = 'admin'
         session['user_id'] = user
-        return 'ну стартовая страница хули'
+        return {"response": "1"}
+
