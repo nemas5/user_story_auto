@@ -6,6 +6,8 @@ import docx
 from api.blueprints import list_of_blueprints
 from config import get_api_settings
 
+from utilities.scenarios import Scenario
+
 
 settings = get_api_settings()
 
@@ -26,4 +28,7 @@ with open('data_files/access.json') as file:
     app.config['access_config'] = json.load(file)
 
 if __name__ == '__main__':
+    # sc = Scenario(1)
+    # sc.build_docx("anatol")
     app.run(host=settings.host, port=int(settings.port), debug=True)
+
