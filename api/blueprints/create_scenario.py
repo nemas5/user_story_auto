@@ -12,9 +12,11 @@ blueprint_create = Blueprint('bp_create', __name__)
 db_session = get_session()
 
 
-@blueprint_create.route('/roles/<scenario>', methods=['GET', 'POST'])
-def create_scenario(scenario: Optional[dict] = None):
+@blueprint_create.route('/create', methods=['GET', 'POST'])
+def create_scenario():
     if request.method == 'GET':
+        scenario = request.json()
+        print(scenario)
         if scenario is None:
             new = Scenario()
         else:
@@ -24,6 +26,8 @@ def create_scenario(scenario: Optional[dict] = None):
         return {"mains": new.mains, "subs": new.subs, "name": new.name,
                 "mheaders": mheaders, "sheaders": sheaders}
     else:
+        scenario = request.json()
+        print(scenario)
         new = Scenario(scenario)
         new_sc = ScenarioORM(s_name=new.name, u_id=session["user_id"])
         new_sc_id = insert_scenario(new_sc, db_session)

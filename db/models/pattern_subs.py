@@ -9,4 +9,4 @@ class PatternSubsORM(Base):
 
     ps_id = Column(INTEGER, primary_key=True, nullable=False, autoincrement=True)
     ps_name = Column(VARCHAR(45), nullable=False)
-    p_id = Column(INTEGER, ForeignKey("pattern.p_id"), nullable=False)
+    p_id = Column(INTEGER, ForeignKey("pattern.p_id", ondelete="CASCADE"), nullable=False)

@@ -9,5 +9,5 @@ class ScenarioSubsORM(Base):
 
     ss_id = Column(INTEGER, primary_key=True, nullable=False, autoincrement=True)
     ss_enabled = Column(INTEGER, nullable=False, default=0)
-    sm_id = Column(INTEGER, ForeignKey("scenario_mains.sm_id"), nullable=False)
-    ps_id = Column(INTEGER, ForeignKey("pattern_subs.ps_id"), nullable=False)
+    sm_id = Column(INTEGER, ForeignKey("scenario_mains.sm_id", ondelete="CASCADE"), nullable=False)
+    ps_id = Column(INTEGER, ForeignKey("pattern_subs.ps_id", ondelete="CASCADE"), nullable=False)

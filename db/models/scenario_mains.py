@@ -9,5 +9,5 @@ class ScenarioMainsORM(Base):
 
     sm_id = Column(INTEGER, primary_key=True, nullable=False, autoincrement=True)
     sm_enabled = Column(INTEGER, nullable=False)
-    s_id = Column(INTEGER, ForeignKey("scenarios.s_id"), nullable=False)
-    p_id = Column(INTEGER, ForeignKey("pattern.p_id"))
+    s_id = Column(INTEGER, ForeignKey("scenarios.s_id", ondelete="CASCADE"), nullable=False)
+    p_id = Column(INTEGER, ForeignKey("pattern.p_id", ondelete="CASCADE"))
