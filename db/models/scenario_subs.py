@@ -1,5 +1,6 @@
 from sqlalchemy import Column, ForeignKey
 from sqlalchemy.dialects.postgresql import VARCHAR, INTEGER
+from sqlalchemy.orm import relationship
 
 from db.models import Base
 
@@ -11,3 +12,4 @@ class ScenarioSubsORM(Base):
     ss_enabled = Column(INTEGER, nullable=False, default=0)
     sm_id = Column(INTEGER, ForeignKey("scenario_mains.sm_id", ondelete="CASCADE"), nullable=False)
     ps_id = Column(INTEGER, ForeignKey("pattern_subs.ps_id", ondelete="CASCADE"), nullable=False)
+    main = relationship("ScenarioMainsORM", back_populates="subs")

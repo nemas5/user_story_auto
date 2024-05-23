@@ -6,6 +6,7 @@ from db.models.scenario import ScenarioORM
 from db.models.pattern_subs import PatternSubsORM
 from db.models.scenario_subs import ScenarioSubsORM
 from db.models.scenario_mains import ScenarioMainsORM
+from db.models.role import RoleORM
 
 __all__ = [
     "Base",
@@ -15,5 +16,6 @@ __all__ = [
     "ScenarioMainsORM",
     "PatternORM",
     "PatternSubsORM",
-    "ScenarioORM"
+    "ScenarioORM",
+    "RoleORM"
 ]
