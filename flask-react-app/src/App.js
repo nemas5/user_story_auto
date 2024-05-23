@@ -4,10 +4,29 @@ import './App.css'; // Подключаем файл стилей
 function LoginPage({ onLogin }) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
 
-  const handleLogin = () => {
-    onLogin(username);
-  };
+  const handleLogin = async () => {
+  let res = await fetch("http://localhost:3000/api/auto/auto", {
+    method: "POST",
+    headers: {
+      'Content-Type':'application/json'
+    },
+    body: JSON.stringify({
+      login: username,
+      password: password
+    }),
+  });
+  //let data = await res.json();
+  if (res.status == 200) {
+    let data = await res.json();
+    //setError(data.ad);
+    onLogin(username, data.ad);
+  }
+  else {
+    setError('Неверное имя пользователя или пароль!');
+  }
+};
 
   return (
     <div className="login-container">
@@ -27,11 +46,12 @@ function LoginPage({ onLogin }) {
         className="rounded-input" // Добавляем класс для скругления поля ввода
       />
       <button onClick={handleLogin} className="rounded-button">Войти</button> {/* Добавляем класс для скругления кнопки */}
+      {error && <p>{error}</p>}
     </div>
   );
 }
 
-function Sidebar({ isVisible, toggleSidebar }) {
+function Sidebar({ isVisible, toggleSidebar, admin, setActiveMenu }) {
   const style = {
     width: isVisible ? '300px' : '0', // Устанавливаем ширину панели в зависимости от isVisible
     background: '#f0f0f0',
@@ -63,15 +83,23 @@ function Sidebar({ isVisible, toggleSidebar }) {
         </button>
       )}
       <h2>Боковая панель</h2>
-      <button className="sidebar-button">Кнопка 1</button>
-      <button className="sidebar-button">Кнопка 2</button>
-      <button className="sidebar-button">Кнопка 3</button>
-      <button className="sidebar-button">Кнопка 4</button>
+      {admin && <button className="sidebar-button" onClick={() => setActiveMenu('viewProfiles')}>
+        Просмотр профилей
+      </button>}
+      <button className="sidebar-button" onClick={() => setActiveMenu('createScenarios')}>
+        Создание пользовательских сценариев
+      </button>
+      <button className="sidebar-button" onClick={() => setActiveMenu('myScenarios')}>
+        Мои сценарии
+      </button>
+      {admin && <button className="sidebar-button"onClick={() => setActiveMenu('editScenarios')}>
+        Редактирование пользовательских сценариев
+      </button>}
     </div>
   );
 }
 
-function TopBar({ toggleSidebar }) {
+function TopBar({ toggleSidebar, username }) {
   const topBarStyle = {
     background: '#007bff',
     color: '#fff',
@@ -91,13 +119,14 @@ function TopBar({ toggleSidebar }) {
       <button className="toggle-sidebar-button" onClick={toggleSidebar}>
         Показать боковую панель
       </button>
-      <div style={{ marginRight: '20px' }}>Пользователь</div>
+      <div style={{ marginRight: '20px' }}>{username}</div>
     </div>
   );
 }
 
-function DashboardPage({ username, toggleSidebar, sidebarVisible }) {
+function DashboardPage({ username, toggleSidebar, sidebarVisible, activeMenu }) {
   const dashboardStyle = {
+  display: 'flex', // Используем Flexbox
     background: '#f0f0f0',
     padding: '20px',
     position: 'fixed',
@@ -110,10 +139,30 @@ function DashboardPage({ username, toggleSidebar, sidebarVisible }) {
     zIndex: '9997', // Уменьшаем z-index, чтобы не перекрывать боковую панель
   };
 
+  const helloStyle = {
+    justifyContent: 'center', // Центрируем по горизонтали
+    alignItems: 'center', // Центрируем по вертикали
+    margin: 'auto'
+  };
+
+   const renderContent = () => {
+    switch(activeMenu) {
+      case 'viewProfiles':
+        return <h2>Просмотр профилей</h2>;
+      case 'createScenarios':
+        return <h2>Создание пользовательских сценариев</h2>;
+      case 'myScenarios':
+        return <h2>Мои сценарии</h2>;
+      case 'editScenarios':
+        return <h2>Редактирование пользовательских сценариев</h2>;
+      default:
+        return <h2 style={helloStyle}>Выберите раздел, чтобы приступить к работе</h2>;
+    }
+  };
+
   return (
     <div style={dashboardStyle}>
-      <TopBar toggleSidebar={toggleSidebar} />
-      <h1>Привет!</h1>
+        {renderContent()}
     </div>
   );
 }
@@ -122,10 +171,15 @@ function App() {
   const [loggedIn, setLoggedIn] = useState(false);
   const [username, setUsername] = useState('');
   const [sidebarVisible, setSidebarVisible] = useState(false);
+  const [admin, setAdmin] = useState(false);
+  const [activeMenu, setActiveMenu] = useState('home');
 
-  const handleLogin = (username) => {
+  const handleLogin = (username, isAdmin) => {
     setUsername(username);
     setLoggedIn(true);
+    if (isAdmin) {
+      setAdmin(true);
+    }
   };
 
   const toggleSidebar = () => {
@@ -136,9 +190,12 @@ function App() {
     <div>
       {!loggedIn ?
         <LoginPage onLogin={handleLogin} /> :
-        <DashboardPage username={username} toggleSidebar={toggleSidebar} sidebarVisible={sidebarVisible}/>
+        <>
+          <TopBar toggleSidebar={toggleSidebar} username={username} />
+          <DashboardPage username={username} toggleSidebar={toggleSidebar} sidebarVisible={sidebarVisible} activeMenu={activeMenu}/>
+        </>
       }
-      <Sidebar isVisible={sidebarVisible} toggleSidebar={toggleSidebar}/>
+      <Sidebar isVisible={sidebarVisible} toggleSidebar={toggleSidebar} admin={admin} setActiveMenu={setActiveMenu}/> {/* Передаем setActiveMenu в Sidebar */}
     </div>
   );
 }

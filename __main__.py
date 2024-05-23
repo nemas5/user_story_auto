@@ -1,6 +1,7 @@
 import json
 
 from flask import Flask
+# from flask_cors import CORS
 import docx
 
 from api.blueprints import list_of_blueprints
@@ -24,11 +25,15 @@ def get_app() -> Flask:
 
 
 app = get_app()
+# CORS(app)
+app.secret_key = 'key'
 with open('data_files/access.json') as file:
     app.config['access_config'] = json.load(file)
 
+app.secret_key = 'key'
+
 if __name__ == '__main__':
-    # sc = Scenario(1)
-    # sc.build_docx("anatol")
+    sc = Scenario(1)
+    sc.build_docx("anatol")
     app.run(host=settings.host, port=int(settings.port), debug=True)
 

@@ -6,6 +6,7 @@ from db.storage import get_admin, get_common, insert_scenario
 from db.connection import get_session
 from db.models import ScenarioORM, ScenarioMainsORM, ScenarioSubsORM
 from utilities.scenarios import Scenario
+from utilities.patterns import pattern_list
 
 blueprint_create = Blueprint('bp_create', __name__)
 db_session = get_session()
@@ -18,7 +19,10 @@ def create_scenario(scenario: Optional[dict] = None):
             new = Scenario()
         else:
             new = Scenario(scenario)
-        return {"mains": new.mains, "subs": new.subs, "name": new.name}
+        mheaders = {i.pattern: i.name for i in pattern_list}
+        sheaders = {i.pattern: i.get_headers() for i in pattern_list}
+        return {"mains": new.mains, "subs": new.subs, "name": new.name,
+                "mheaders": mheaders, "sheaders": sheaders}
     else:
         new = Scenario(scenario)
         new_sc = ScenarioORM(s_name=new.name, u_id=session["user_id"])

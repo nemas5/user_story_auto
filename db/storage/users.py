@@ -15,7 +15,7 @@ def get_admin(
                AdminORM.a_pass == password)
     )
     found_users = session.execute(query)
-    return found_users.all()
+    return found_users.first()
 
 
 def get_common(
@@ -28,7 +28,7 @@ def get_common(
                CommonORM.u_pass == password)
     )
     found_users = session.execute(query)
-    return found_users.all()
+    return found_users.first()
 
 
 def get_all_common(session: Session):

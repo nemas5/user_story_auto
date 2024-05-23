@@ -3,9 +3,10 @@ from flask import Blueprint, render_template, request, current_app, session, red
 
 from db.storage import get_scenario_by_user, delete_scenario
 from db.connection import get_session
-from utilities.scenarios import Scenario
 from db.models import ScenarioORM, ScenarioMainsORM, ScenarioSubsORM
 from db.storage import update_scenario, update_scenario_main, update_scenario_sub
+from utilities.scenarios import Scenario
+from utilities.patterns import pattern_list
 
 blueprint_view = Blueprint('bp_view', __name__)
 db_session = get_session()
@@ -15,14 +16,17 @@ db_session = get_session()
 def view_scenarios():
     user = session["user_id"]
     s_id, s_name = get_scenario_by_user(user, db_session)
-    return s_id, s_name
+    return {"name": s_id, "scenario": s_name}
 
 
 @blueprint_view.route('/edit/<s_id>', methods=['GET'])
 def edit_scenario(s_id: int):
     if request.method == 'GET':
         new = Scenario(s_id)
-        return {"mains": new.mains, "subs": new.subs, "name": new.name}
+        mheaders = {i.pattern: i.name for i in pattern_list}
+        sheaders = {i.pattern: i.get_headers() for i in pattern_list}
+        return {"mains": new.mains, "subs": new.subs, "name": new.name,
+                "mheaders": mheaders, "sheaders": sheaders}
     else:
         new = Scenario(s_id)
         new_sc = ScenarioORM(s_id=s_id, s_name=new.name)

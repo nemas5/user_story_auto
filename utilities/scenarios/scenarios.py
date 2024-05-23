@@ -14,7 +14,7 @@ db_session = get_session()
 
 
 class Scenario:
-    def __init__(self, scenario: Optional[int, dict] = None) -> None:
+    def __init__(self, scenario=None) -> None:
         self.subs = dict()
         self.mains = dict()
         self.name = ''
@@ -37,7 +37,6 @@ class Scenario:
             self.mains = scenario["mains"]
             self.subs = scenario["subs"]
             print(scenario)
-        print(self.subs, self.mains)
 
     def build_docx(self, user):
         doc = docx.Document()

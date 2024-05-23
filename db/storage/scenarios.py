@@ -38,7 +38,7 @@ def get_scenario_by_user(user: str, session: Session):
     pass
 
 
-def insert_scenario(orm_obj: Optional[ScenarioORM, ScenarioMainsORM, ScenarioSubsORM],
+def insert_scenario(orm_obj,
                     session: Session) -> int:
     session.add(orm_obj)
     session.flush()
