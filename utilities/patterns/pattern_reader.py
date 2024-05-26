@@ -26,10 +26,6 @@ class Pattern:
             self.data[i]["name"] = logic[i]
         # print(self.data)
 
-    def get_headers(self):
-        headers = {i: i[0] for i in self.data.keys()}
-        return headers
-
 
 pattern_list = list()
 for patt in get_pattern_list(db_session):

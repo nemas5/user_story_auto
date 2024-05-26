@@ -34,6 +34,5 @@ app.secret_key = 'key'
 
 if __name__ == '__main__':
     sc = Scenario(1)
-    sc.build_docx("anatol")
     app.run(host=settings.host, port=int(settings.port), debug=True)
 

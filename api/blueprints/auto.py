@@ -14,12 +14,12 @@ def auto():
 
         login = request.json['login']
         password = request.json['password']
-        print(login, password)
+        # print(login, password)
         user = get_admin(login, password, db_session)
-        print(user, 1)
+        # print(user, 1)
         if user is None:
             user = get_common(login, password, db_session)
-            print(user, 2)
+            # print(user, 2)
             if user is None:
                 return make_response(jsonify({"ad": 0}), 201)
             session['user_id'] = user[0]

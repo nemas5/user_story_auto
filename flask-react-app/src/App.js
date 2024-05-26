@@ -86,7 +86,7 @@ function Sidebar({ isVisible, toggleSidebar, admin, setActiveMenu }) {
       {admin && <button className="sidebar-button" onClick={() => setActiveMenu('viewProfiles')}>
         Просмотр профилей
       </button>}
-      <button className="sidebar-button" onClick={() => setActiveMenu('createScenarios')}>
+      <button className="sidebar-button" onClick={() => setActiveMenu('createRoles')}>
         Создание пользовательских сценариев
       </button>
       <button className="sidebar-button" onClick={() => setActiveMenu('myScenarios')}>
@@ -124,7 +124,158 @@ function TopBar({ toggleSidebar, username }) {
   );
 }
 
-function DashboardPage({ username, toggleSidebar, sidebarVisible, activeMenu }) {
+function CreateScenario({ roles }) {
+  const [userStory, setUserStory] = useState('Корпоративная система');
+  const [result, setData] = useState([])
+
+  useEffect(() => {
+    const fetchData = async () => {
+        const response = await fetch('http://localhost:3000/api/create/create');
+        const result = await response.json();
+        setData(result);
+  };
+    fetchData();
+  }, []);
+
+  const [systems, setSystems] = useState([
+    {
+      name: 'Авторизация',
+      enabled: true,
+      components: [
+        { name: 'Вход в систему', role: 'Пользователь', enabled: true },
+        { name: 'Навигация', role: 'Пользователь', enabled: true },
+        { name: 'Выход из системы', role: 'Пользователь', enabled: true },
+        { name: 'Выход из учетной записи', role: 'Пользователь', enabled: true },
+      ],
+    },
+  ]);
+
+  const toggleSystem = (index) => {
+    const newSystems = [...systems];
+    newSystems[index].enabled = !newSystems[index].enabled;
+    setSystems(newSystems);
+  };
+
+  const toggleComponent = (systemIndex, componentIndex) => {
+    const newSystems = [...systems];
+    newSystems[systemIndex].components[componentIndex].enabled = !newSystems[systemIndex].components[componentIndex].enabled;
+    setSystems(newSystems);
+  };
+
+  const handleRoleChange = (systemIndex, componentIndex, role) => {
+    const newSystems = [...systems];
+    newSystems[systemIndex].components[componentIndex].role = role;
+    setSystems(newSystems);
+  };
+
+  const handleCreateScenario = () => {
+    console.log('Создать сценарий', { userStory, systems });
+  };
+
+  return (
+    <div className="scenario-container">
+      <h1>Введите название user story:</h1>
+      <input
+        type="text"
+        value={userStory}
+        onChange={(e) => setUserStory(e.target.value)}
+        className="user-story-input"
+      />
+      <h2>Выберите составляющие системы</h2>
+      {systems.map((system, systemIndex) => (
+        <div key={systemIndex} className="system-container">
+          <label className="switch">
+            <input
+              type="checkbox"
+              checked={system.enabled}
+              onChange={() => toggleSystem(systemIndex)}
+            />
+            <span className="slider round"></span>
+          </label>
+          <span>{system.name}</span>
+          {system.enabled && system.components.map((component, componentIndex) => (
+            <div key={componentIndex} className="component-container">
+              <label className="switch">
+                <input
+                  type="checkbox"
+                  checked={component.enabled}
+                  onChange={() => toggleComponent(systemIndex, componentIndex)}
+                />
+                <span className="slider round"></span>
+              </label>
+              <span>{component.name}</span>
+              <select
+                value={component.role}
+                onChange={(e) => handleRoleChange(systemIndex, componentIndex, e.target.value)}
+                disabled={!component.enabled}
+              >
+                <option value="">Выбор роли</option>
+                <option value="Пользователь">Пользователь</option>
+                <option value="Администратор">Администратор</option>
+              </select>
+            </div>
+          ))}
+        </div>
+      ))}
+      <button onClick={handleCreateScenario} className="create-scenario-button">
+        Создать сценарий
+      </button>
+    </div>
+  );
+}
+
+function Roles({ roles, setRoles, setActiveMenu }) {
+
+  const addRole = () => {
+    setRoles([...roles, '']);
+  };
+
+  const removeRole = (index) => {
+    setRoles(roles.filter((_, i) => i !== index));
+  };
+
+  const updateRole = (index, newRole) => {
+    const newRoles = [...roles];
+    newRoles[index] = newRole;
+    setRoles(newRoles);
+  };
+
+ // const handleSkip = () => {
+   // console.log('Пропустить');
+  //};
+
+   const handleApply = () => {
+    console.log('Применить', roles);
+    setActiveMenu('createScenario');
+  };
+
+  return (<div className="scenario-container">
+      <h1>Задание ролей пользователей системы</h1>
+      {roles.map((role, index) => (
+        <div key={index} className="role-input-container">
+          <input
+            type="text"
+            value={role}
+            onChange={(e) => updateRole(index, e.target.value)}
+            className="role-input"
+          />
+          <button onClick={() => removeRole(index)} className="remove-button">
+            Удалить
+          </button>
+        </div>
+      ))}
+      <button onClick={addRole} className="add-role-button">
+        Добавить роль
+      </button>
+      <div className="action-buttons">
+
+        <button onClick={handleApply} className="apply-button">Применить</button>
+      </div>
+    </div>);
+}
+//<button onClick={handleSkip} className="skip-button">Пропустить</button>
+
+function DashboardPage({ username, toggleSidebar, sidebarVisible, activeMenu, setActiveMenu }) {
   const dashboardStyle = {
   display: 'flex', // Используем Flexbox
     background: '#f0f0f0',
@@ -145,16 +296,24 @@ function DashboardPage({ username, toggleSidebar, sidebarVisible, activeMenu }) 
     margin: 'auto'
   };
 
+  const [roles, setRoles] = useState([
+            'Неавторизованный пользователь',
+            'Пользователь',
+            'Администратор',
+  ]);
+
    const renderContent = () => {
     switch(activeMenu) {
       case 'viewProfiles':
         return <h2>Просмотр профилей</h2>;
-      case 'createScenarios':
-        return <h2>Создание пользовательских сценариев</h2>;
+      case 'createRoles':
+        return (<Roles roles={roles} setRoles={setRoles} setActiveMenu={setActiveMenu}/>);
       case 'myScenarios':
         return <h2>Мои сценарии</h2>;
       case 'editScenarios':
         return <h2>Редактирование пользовательских сценариев</h2>;
+      case 'createScenario':
+        return <CreateScenario roles={roles}/>;
       default:
         return <h2 style={helloStyle}>Выберите раздел, чтобы приступить к работе</h2>;
     }
@@ -192,7 +351,8 @@ function App() {
         <LoginPage onLogin={handleLogin} /> :
         <>
           <TopBar toggleSidebar={toggleSidebar} username={username} />
-          <DashboardPage username={username} toggleSidebar={toggleSidebar} sidebarVisible={sidebarVisible} activeMenu={activeMenu}/>
+          <DashboardPage username={username} toggleSidebar={toggleSidebar}
+          sidebarVisible={sidebarVisible} activeMenu={activeMenu} setActiveMenu={setActiveMenu}/>
         </>
       }
       <Sidebar isVisible={sidebarVisible} toggleSidebar={toggleSidebar} admin={admin} setActiveMenu={setActiveMenu}/> {/* Передаем setActiveMenu в Sidebar */}

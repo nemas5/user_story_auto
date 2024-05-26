@@ -1,6 +1,6 @@
 import os
 from typing import Optional
-from flask import Blueprint, render_template, request, current_app, session, redirect, url_for
+from flask import Blueprint, render_template, request, current_app, session, jsonify, make_response
 
 from db.storage import get_admin, get_common, insert_scenario
 from db.connection import get_session
@@ -15,16 +15,9 @@ db_session = get_session()
 @blueprint_create.route('/create', methods=['GET', 'POST'])
 def create_scenario():
     if request.method == 'GET':
-        scenario = request.json()
-        print(scenario)
-        if scenario is None:
-            new = Scenario()
-        else:
-            new = Scenario(scenario)
-        mheaders = {i.pattern: i.name for i in pattern_list}
-        sheaders = {i.pattern: i.get_headers() for i in pattern_list}
-        return {"mains": new.mains, "subs": new.subs, "name": new.name,
-                "mheaders": mheaders, "sheaders": sheaders}
+        new = Scenario()
+
+        return make_response(jsonify({}), 200)
     else:
         scenario = request.json()
         print(scenario)
@@ -43,3 +36,12 @@ def create_scenario():
                 insert_scenario(new_sub, db_session)
         new.build_docx(session["user_id"])
         return {"response": 1}
+
+
+@blueprint_create.route('/role', methods=['GET', 'POST'])
+def scenario_roles():
+    if request.method == 'GET':
+        pass
+    else:
+        print(request.json)
+
