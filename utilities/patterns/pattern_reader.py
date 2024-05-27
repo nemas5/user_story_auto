@@ -18,17 +18,16 @@ class Pattern:
         pref = f'data_files/samples/{self.pattern}'
         logic = get_pattern(self.pattern, db_session)
         self.data = dict()
+        self.data["id"] = self.pattern
+        self.data["name"] = self.name
 
-        for i in logic.keys():
-            doc = docx.Document(os.path.join(pref, f'{i}.docx'))
-            self.data[i] = dict()
-            self.data[i]["doc"] = doc
-            self.data[i]["name"] = logic[i]
-        # print(self.data)
+        for i in range(len(logic)):
+            for j in range(len(logic[i]["components"])):
+                doc = docx.Document(os.path.join(pref, logic[i]["components"][j]["doc"]))
+                logic[i]["components"][j]["doc"] = doc
+        self.data["components"] = logic
 
 
 pattern_list = list()
 for patt in get_pattern_list(db_session):
     pattern_list.append(Pattern(patt))
-print(pattern_list[0].data)
-

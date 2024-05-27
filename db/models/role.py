@@ -12,3 +12,4 @@ class RoleORM(Base):
     s_id = Column(INTEGER, ForeignKey("scenario.s_id", ondelete="CASCADE"), nullable=False)
     r_name = Column(VARCHAR, nullable=False)
     scenario = relationship("ScenarioORM", back_populates="role")
+    sub = relationship("ScenarioSubsORM", back_populates="role")

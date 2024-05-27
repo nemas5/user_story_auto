@@ -33,6 +33,5 @@ with open('data_files/access.json') as file:
 app.secret_key = 'key'
 
 if __name__ == '__main__':
-    sc = Scenario(1)
     app.run(host=settings.host, port=int(settings.port), debug=True)
 

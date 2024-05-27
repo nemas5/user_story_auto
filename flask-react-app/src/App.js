@@ -124,31 +124,26 @@ function TopBar({ toggleSidebar, username }) {
   );
 }
 
-function CreateScenario({ roles }) {
+function CreateScenario({ roles, setActiveMenu }) {
   const [userStory, setUserStory] = useState('Корпоративная система');
-  const [result, setData] = useState([])
+  const [systems, setSystems] = useState([]);
 
   useEffect(() => {
     const fetchData = async () => {
+      try {
         const response = await fetch('http://localhost:3000/api/create/create');
         const result = await response.json();
-        setData(result);
-  };
+        if (Array.isArray(result)) {
+          setSystems(result);
+        } else {
+          console.error('Received data is not an array:', result);
+        }
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    };
     fetchData();
   }, []);
-
-  const [systems, setSystems] = useState([
-    {
-      name: 'Авторизация',
-      enabled: true,
-      components: [
-        { name: 'Вход в систему', role: 'Пользователь', enabled: true },
-        { name: 'Навигация', role: 'Пользователь', enabled: true },
-        { name: 'Выход из системы', role: 'Пользователь', enabled: true },
-        { name: 'Выход из учетной записи', role: 'Пользователь', enabled: true },
-      ],
-    },
-  ]);
 
   const toggleSystem = (index) => {
     const newSystems = [...systems];
@@ -162,14 +157,27 @@ function CreateScenario({ roles }) {
     setSystems(newSystems);
   };
 
+  const toggleSubcomponent = (systemIndex, componentIndex, subcomponentIndex) => {
+    const newSystems = [...systems];
+    newSystems[systemIndex].components[componentIndex].components[subcomponentIndex].enabled = !newSystems[systemIndex].components[componentIndex].components[subcomponentIndex].enabled;
+    setSystems(newSystems);
+  };
+
   const handleRoleChange = (systemIndex, componentIndex, role) => {
     const newSystems = [...systems];
     newSystems[systemIndex].components[componentIndex].role = role;
     setSystems(newSystems);
   };
 
-  const handleCreateScenario = () => {
-    console.log('Создать сценарий', { userStory, systems });
+  const handleCreateScenario = async () => {
+    let res = await fetch("http://localhost:3000/api/create/create", {
+    method: "POST",
+    headers: {
+      'Content-Type':'application/json'
+    },
+    body: JSON.stringify({systems: systems, name: userStory, roles: roles}),
+    });
+
   };
 
   return (
@@ -209,10 +217,24 @@ function CreateScenario({ roles }) {
                 onChange={(e) => handleRoleChange(systemIndex, componentIndex, e.target.value)}
                 disabled={!component.enabled}
               >
-                <option value="">Выбор роли</option>
-                <option value="Пользователь">Пользователь</option>
-                <option value="Администратор">Администратор</option>
+                <option value='Любой пользователь'>Выбор роли</option>
+                {roles.map(role => (
+                  <option key={role} value={role}>{role}</option>
+                ))}
               </select>
+              {component.enabled && component.components.map((subcomponent, subcomponentIndex) => (
+                <div key={subcomponentIndex} className="subcomponent-container">
+                  <label className="switch">
+                    <input
+                      type="checkbox"
+                      checked={subcomponent.enabled}
+                      onChange={() => toggleSubcomponent(systemIndex, componentIndex, subcomponentIndex)}
+                    />
+                    <span className="slider round"></span>
+                  </label>
+                  <span>{subcomponent.name}</span>
+                </div>
+              ))}
             </div>
           ))}
         </div>
@@ -277,17 +299,9 @@ function Roles({ roles, setRoles, setActiveMenu }) {
 
 function DashboardPage({ username, toggleSidebar, sidebarVisible, activeMenu, setActiveMenu }) {
   const dashboardStyle = {
-  display: 'flex', // Используем Flexbox
-    background: '#f0f0f0',
-    padding: '20px',
-    position: 'fixed',
-    top: '50px', // Отступ сверху равен высоте верхней панели
-    left: `${sidebarVisible ? '360px' : '20px'}`, // Отступ слева от боковой панели
-    bottom: '20px',
-    right: '20px', // Правый отступ равен 0, чтобы заполнить всю ширину
-    transition: 'left 0.3s ease', // Анимация при изменении отступа слева
-    borderRadius: '10px', // Скругление углов
-    zIndex: '9997', // Уменьшаем z-index, чтобы не перекрывать боковую панель
+    // Удаляем предыдущие стили и применяем класс
+    display: 'flex', // Используем Flexbox
+
   };
 
   const helloStyle = {
@@ -297,31 +311,30 @@ function DashboardPage({ username, toggleSidebar, sidebarVisible, activeMenu, se
   };
 
   const [roles, setRoles] = useState([
-            'Неавторизованный пользователь',
-            'Пользователь',
-            'Администратор',
+    'Неавторизованный пользователь',
+    'Администратор',
   ]);
 
-   const renderContent = () => {
-    switch(activeMenu) {
+  const renderContent = () => {
+    switch (activeMenu) {
       case 'viewProfiles':
         return <h2>Просмотр профилей</h2>;
       case 'createRoles':
-        return (<Roles roles={roles} setRoles={setRoles} setActiveMenu={setActiveMenu}/>);
+        return <Roles roles={roles} setRoles={setRoles} setActiveMenu={setActiveMenu} />;
       case 'myScenarios':
         return <h2>Мои сценарии</h2>;
       case 'editScenarios':
         return <h2>Редактирование пользовательских сценариев</h2>;
       case 'createScenario':
-        return <CreateScenario roles={roles}/>;
+        return <CreateScenario roles={roles} />;
       default:
         return <h2 style={helloStyle}>Выберите раздел, чтобы приступить к работе</h2>;
     }
   };
 
   return (
-    <div style={dashboardStyle}>
-        {renderContent()}
+    <div className={`dashboard-container ${sidebarVisible ? 'sidebar-visible' : ''}`} style={dashboardStyle}>
+      {renderContent()}
     </div>
   );
 }

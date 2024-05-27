@@ -12,8 +12,10 @@ class ScenarioSubsORM(Base):
     ss_enabled = Column(INTEGER, nullable=False, default=0)
     sm_id = Column(INTEGER, ForeignKey("scenario_mains.sm_id", ondelete="CASCADE"), nullable=False)
     ps_id = Column(INTEGER, ForeignKey("pattern_subs.ps_id", ondelete="CASCADE"), nullable=False)
+    r_id = Column(INTEGER, ForeignKey("role.r_id", ondelete="CASCADE"), nullable=False)
     main = relationship("ScenarioMainsORM", back_populates="subs")
     subs = relationship("ScenarioSubs2ORM", back_populates="sub")
+    role = relationship("RoleORM", back_populates="sub")
 
 
 class ScenarioSubs2ORM(Base):

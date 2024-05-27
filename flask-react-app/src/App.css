@@ -107,29 +107,34 @@
 }
 
 
-.user-story-input {
-  width: 100%;
-  padding: 10px;
-  margin-bottom: 20px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
+
+
+.scenario-container {
+  padding: 20px;
 }
 
+/* Стили для систем */
 .system-container {
   margin-bottom: 20px;
 }
 
+/* Стили для компонентов первого уровня */
 .component-container {
-  display: flex;
-  align-items: center;
   margin-left: 20px;
   margin-top: 10px;
 }
 
+/* Стили для компонентов второго уровня */
+.subcomponent-container {
+  margin-left: 40px; /* Большее смещение для вложенных компонентов */
+  margin-top: 5px;
+}
+
+/* Стили для переключателей */
 .switch {
   position: relative;
   display: inline-block;
-  width: 34px;
+  width: 45px;
   height: 20px;
 }
 
@@ -147,8 +152,8 @@
   right: 0;
   bottom: 0;
   background-color: #ccc;
-  transition: .4s;
-  border-radius: 34px;
+  transition: 0.4s;
+  border-radius: 10px;
 }
 
 .slider:before {
@@ -159,18 +164,51 @@
   left: 3px;
   bottom: 3px;
   background-color: white;
-  transition: .4s;
+  transition: 0.4s;
   border-radius: 50%;
 }
 
 input:checked + .slider {
-  background-color: #2196F3;
+  background-color: #007bff;
 }
 
 input:checked + .slider:before {
   transform: translateX(14px);
 }
 
+/* Стили для текста */
+span {
+  margin-left: 10px;
+  vertical-align: middle;
+}
+
+/* Стили для кнопки создания сценария */
+.create-scenario-button {
+  display: block;
+  margin-top: 20px;
+  padding: 10px 20px;
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.create-scenario-button:hover {
+  background-color: #0056b3;
+}
+
+/* Стили для ввода названия user story */
+.user-story-input {
+  display: block;
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 20px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+/* Стили для выбора роли */
 select {
   margin-left: 10px;
   padding: 5px;
@@ -178,16 +216,21 @@ select {
   border-radius: 5px;
 }
 
-.create-scenario-button {
-  background-color: #007bff;
-  color: white;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 5px;
-  cursor: pointer;
-  margin-top: 20px;
+/* Стили для контейнера панели */
+.dashboard-container {
+  position: fixed;
+  top: 50px; /* Отступ сверху равен высоте верхней панели */
+  left: 20px;
+  right: 20px;
+  bottom: 20px;
+  background: #f0f0f0;
+  padding: 20px;
+  border-radius: 10px; /* Скругление углов */
+  overflow-y: auto; /* Вертикальная прокрутка */
+  max-height: calc(100vh - 90px); /* Высота экрана минус отступы */
+  transition: left 0.3s ease; /* Анимация при изменении отступа слева */
 }
 
-.create-scenario-button:hover {
-  background-color: #0056b3;
+.dashboard-container.sidebar-visible {
+  left: 360px; /* Отступ слева от боковой панели, когда она видима */
 }
