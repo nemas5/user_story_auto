@@ -10,9 +10,6 @@ from db.storage import get_scenario
 from db.connection import get_session
 
 
-
-
-
 class Scenario:
     def __init__(self, scenario=None, user='') -> None:
         self.data = list()

@@ -18,7 +18,6 @@ def create_scenario():
         return make_response(jsonify(new.data), 200)
     else:
         db_session = get_session()
-        print(request.json)
         name = request.json["name"]
         scenario = request.json['systems']
         new_sc = ScenarioORM(s_name=name, u_id=session["user_id"])

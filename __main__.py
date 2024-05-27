@@ -25,7 +25,7 @@ def get_app() -> Flask:
 
 
 app = get_app()
-# CORS(app)
+CORS(app)
 app.secret_key = 'key'
 with open('data_files/access.json') as file:
     app.config['access_config'] = json.load(file)

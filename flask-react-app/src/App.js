@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import DocViewer, { DocViewerRenderers, PDFRenderer } from 'react-doc-viewer';
+import DocViewer, { DocViewerRenderers } from 'react-doc-viewer';
 import './App.css'; // Подключаем файл стилей
 
 function LoginPage({ onLogin }) {
@@ -130,7 +130,7 @@ function DocumentViewer({ documents }) {
   console.log(docs);
   return (
     <div style={{ width: '100%', height: '100%' }}>
-      <DocViewer documents={[{uri: require('./file/1.pdf')}]} pluginRenderers={[PDFRenderer]} />
+      <DocViewer documents={docs} pluginRenderers={ DocViewerRenderers } />
     </div>
   );
 }
