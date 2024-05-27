@@ -1,7 +1,7 @@
 import json
 
 from flask import Flask
-# from flask_cors import CORS
+from flask_cors import CORS
 import docx
 
 from api.blueprints import list_of_blueprints

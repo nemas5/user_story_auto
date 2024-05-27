@@ -1,6 +1,6 @@
 import os
 from typing import Optional
-from flask import Blueprint, render_template, request, current_app, session, jsonify, make_response
+from flask import Blueprint, request, session, jsonify, make_response, send_file
 
 from db.storage import get_admin, get_common, insert_scenario, insert_role
 from db.connection import get_session
@@ -9,16 +9,16 @@ from utilities.scenarios import Scenario
 from utilities.patterns import pattern_list
 
 blueprint_create = Blueprint('bp_create', __name__)
-db_session = get_session()
 
 
 @blueprint_create.route('/create', methods=['GET', 'POST'])
 def create_scenario():
     if request.method == 'GET':
         new = Scenario(user=session["user_id"])
-
         return make_response(jsonify(new.data), 200)
     else:
+        db_session = get_session()
+        print(request.json)
         name = request.json["name"]
         scenario = request.json['systems']
         new_sc = ScenarioORM(s_name=name, u_id=session["user_id"])
@@ -49,9 +49,12 @@ def create_scenario():
                                                 ss_id=new_sub_id,
                                                 ps2_id=sub2["ps2_id"])
                     insert_scenario(new_sub2, db_session)
+
         sc = Scenario(new_sc_id, session["user_id"])
         sc.build_docx()
-        return make_response('', 200)
+        return make_response(jsonify(
+            {'documentUrl': f'http://localhost:3000/api/download/download/{new_sc_id}'}
+        ), 200)
 
 
 @blueprint_create.route('/role', methods=['GET', 'POST'])

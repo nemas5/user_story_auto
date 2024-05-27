@@ -10,7 +10,7 @@ from db.storage import get_scenario
 from db.connection import get_session
 
 
-db_session = get_session()
+
 
 
 class Scenario:
@@ -39,6 +39,7 @@ class Scenario:
                         new["components"][-1]["components"][-1]["enabled"] = 0
                 self.data.append(new)
         else:
+            db_session = get_session()
             scenario = get_scenario(scenario, db_session)
             self.name = scenario["name"]
             self.id = scenario["id"]

@@ -9,11 +9,11 @@ from utilities.scenarios import Scenario
 from utilities.patterns import pattern_list
 
 blueprint_view = Blueprint('bp_view', __name__)
-db_session = get_session()
 
 
 @blueprint_view.route('/view', methods=['GET'])
 def view_scenarios():
+    db_session = get_session()
     user = session["user_id"]
     s_id, s_name = get_scenario_by_user(user, db_session)
     return {"name": s_id, "scenario": s_name}
@@ -21,6 +21,7 @@ def view_scenarios():
 
 @blueprint_view.route('/edit/<s_id>', methods=['GET'])
 def edit_scenario(s_id: int):
+    db_session = get_session()
     if request.method == 'GET':
         new = Scenario(s_id)
         mheaders = {i.pattern: i.name for i in pattern_list}
@@ -47,5 +48,6 @@ def edit_scenario(s_id: int):
 
 @blueprint_view.route('/delete/<s_id>', methods=['DELETE'])
 def sc_delete(s_id: int):
+    db_session = get_session()
     delete_scenario(s_id, db_session)
     return {"response": 1}

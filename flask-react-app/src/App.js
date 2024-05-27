@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import DocViewer, { DocViewerRenderers, PDFRenderer } from 'react-doc-viewer';
 import './App.css'; // Подключаем файл стилей
 
 function LoginPage({ onLogin }) {
@@ -124,7 +125,17 @@ function TopBar({ toggleSidebar, username }) {
   );
 }
 
-function CreateScenario({ roles, setActiveMenu }) {
+function DocumentViewer({ documents }) {
+  const docs = documents.map(doc => ({ uri: doc.url }));
+  console.log(docs);
+  return (
+    <div style={{ width: '100%', height: '100%' }}>
+      <DocViewer documents={[{uri: require('./file/1.pdf')}]} pluginRenderers={[PDFRenderer]} />
+    </div>
+  );
+}
+
+function CreateScenario({ roles, setActiveMenu, setDocuments }) {
   const [userStory, setUserStory] = useState('Корпоративная система');
   const [systems, setSystems] = useState([]);
 
@@ -171,13 +182,20 @@ function CreateScenario({ roles, setActiveMenu }) {
 
   const handleCreateScenario = async () => {
     let res = await fetch("http://localhost:3000/api/create/create", {
-    method: "POST",
-    headers: {
-      'Content-Type':'application/json'
-    },
-    body: JSON.stringify({systems: systems, name: userStory, roles: roles}),
+      method: "POST",
+      headers: {
+        'Content-Type':'application/json'
+      },
+      body: JSON.stringify({systems: systems, name: userStory, roles: roles}),
     });
 
+    if (res.ok) {
+      const data = await res.json();
+      setDocuments([{ url: data.documentUrl }]);
+      setActiveMenu('viewDocuments');
+    } else {
+      console.error('Failed to create scenario');
+    }
   };
 
   return (
@@ -298,10 +316,19 @@ function Roles({ roles, setRoles, setActiveMenu }) {
 //<button onClick={handleSkip} className="skip-button">Пропустить</button>
 
 function DashboardPage({ username, toggleSidebar, sidebarVisible, activeMenu, setActiveMenu }) {
-  const dashboardStyle = {
-    // Удаляем предыдущие стили и применяем класс
-    display: 'flex', // Используем Flexbox
-
+    const dashboardStyle = {
+    display: 'flex',
+    background: '#f0f0f0',
+    padding: '20px',
+    position: 'fixed',
+    top: '50px',
+    left: `${sidebarVisible ? '360px' : '20px'}`,
+    right: '20px',
+    bottom: '20px',
+    transition: 'left 0.3s ease',
+    borderRadius: '10px',
+    zIndex: '9997',
+    overflowY: 'auto',
   };
 
   const helloStyle = {
@@ -312,28 +339,33 @@ function DashboardPage({ username, toggleSidebar, sidebarVisible, activeMenu, se
 
   const [roles, setRoles] = useState([
     'Неавторизованный пользователь',
+    'Пользователь',
     'Администратор',
   ]);
+
+  const [documents, setDocuments] = useState([]);
 
   const renderContent = () => {
     switch (activeMenu) {
       case 'viewProfiles':
         return <h2>Просмотр профилей</h2>;
       case 'createRoles':
-        return <Roles roles={roles} setRoles={setRoles} setActiveMenu={setActiveMenu} />;
+        return (<Roles roles={roles} setRoles={setRoles} setActiveMenu={setActiveMenu} />);
       case 'myScenarios':
         return <h2>Мои сценарии</h2>;
       case 'editScenarios':
         return <h2>Редактирование пользовательских сценариев</h2>;
       case 'createScenario':
-        return <CreateScenario roles={roles} />;
+        return <CreateScenario roles={roles} setActiveMenu={setActiveMenu} setDocuments={setDocuments} />;
+      case 'viewDocuments':
+        return <DocumentViewer documents={documents} />;
       default:
         return <h2 style={helloStyle}>Выберите раздел, чтобы приступить к работе</h2>;
     }
   };
 
   return (
-    <div className={`dashboard-container ${sidebarVisible ? 'sidebar-visible' : ''}`} style={dashboardStyle}>
+    <div style={dashboardStyle}>
       {renderContent()}
     </div>
   );
@@ -364,11 +396,21 @@ function App() {
         <LoginPage onLogin={handleLogin} /> :
         <>
           <TopBar toggleSidebar={toggleSidebar} username={username} />
-          <DashboardPage username={username} toggleSidebar={toggleSidebar}
-          sidebarVisible={sidebarVisible} activeMenu={activeMenu} setActiveMenu={setActiveMenu}/>
+          <DashboardPage
+            username={username}
+            toggleSidebar={toggleSidebar}
+            sidebarVisible={sidebarVisible}
+            activeMenu={activeMenu}
+            setActiveMenu={setActiveMenu}
+          />
         </>
       }
-      <Sidebar isVisible={sidebarVisible} toggleSidebar={toggleSidebar} admin={admin} setActiveMenu={setActiveMenu}/> {/* Передаем setActiveMenu в Sidebar */}
+      <Sidebar
+        isVisible={sidebarVisible}
+        toggleSidebar={toggleSidebar}
+        admin={admin}
+        setActiveMenu={setActiveMenu}
+      />
     </div>
   );
 }
