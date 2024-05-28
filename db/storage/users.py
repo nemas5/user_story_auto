@@ -23,7 +23,7 @@ def get_common(
 ) -> list[Row]:
 
     query = (
-        select(CommonORM.u_id)
+        select(CommonORM.u_id, CommonORM.u_rights)
         .where(CommonORM.u_id == login,
                CommonORM.u_pass == password)
     )

@@ -14,21 +14,17 @@ def auto():
 
         login = request.json['login']
         password = request.json['password']
-        # print(login, password)
-        user = get_admin(login, password, db_session)
-        # print(user, 1)
+        user = get_common(login, password, db_session)
         if user is None:
-            user = get_common(login, password, db_session)
-            # print(user, 2)
-            if user is None:
-                return make_response(jsonify({"ad": 0}), 201)
-            session['user_id'] = user[0]
-            session['user_group'] = 'common'
-            return make_response(jsonify({"ad": 0}), 200)
+            return make_response(jsonify({"ad": 0}), 201)
+        session['user_id'] = user[0]
+        session['user_group'] = user[1]
+        if user[1] == 'admin':
+            rights = 1
         else:
-            session['user_id'] = user[0]
-            session['user_group'] = 'admin'
-            return make_response(jsonify({"ad": 1}), 200)
+            rights = 0
+        return make_response(jsonify({"ad": rights}), 200)
+
 
 
 
