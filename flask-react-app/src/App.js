@@ -328,6 +328,7 @@ function Roles({ roles, setRoles, setActiveMenu }) {
 
 
 
+
 function EditScenario({ editedRoles, setActiveMenu, curScenario }) {
   const [userStory, setUserStory] = useState('');
   const [systems, setSystems] = useState([]);
@@ -348,7 +349,6 @@ function EditScenario({ editedRoles, setActiveMenu, curScenario }) {
       }
     };
     fetchScenarioData();
-    console.log(systems);
   }, [curScenario]);
 
   const toggleSystem = (index) => {
@@ -369,9 +369,9 @@ function EditScenario({ editedRoles, setActiveMenu, curScenario }) {
     setSystems(newSystems);
   };
 
-  const handleRoleChange = (systemIndex, componentIndex, role) => {
+  const handleRoleChange = (systemIndex, componentIndex, newRole) => {
     const newSystems = [...systems];
-    newSystems[systemIndex].components[componentIndex].role = role;
+    newSystems[systemIndex].components[componentIndex].role = newRole;
     setSystems(newSystems);
   };
 
@@ -436,7 +436,7 @@ function EditScenario({ editedRoles, setActiveMenu, curScenario }) {
               </label>
               <span>{component.name}</span>
               <select
-                value={editedRoles.updatedRoles[component.r_id] || 'Любой пользователь'}
+                value={component.role || 'Любой пользователь'}
                 onChange={(e) => handleRoleChange(systemIndex, componentIndex, e.target.value)}
                 disabled={!component.enabled}
               >
@@ -679,7 +679,6 @@ function DashboardPage({ username, toggleSidebar, sidebarVisible, activeMenu, se
       case 'viewProfiles':
         return <h2>Просмотр профилей</h2>;
       case 'createRoles':
-
         return (<Roles roles={roles} setRoles={setRoles} setActiveMenu={setActiveMenu} />);
       case 'myScenarios':
         return <MyScenarios setActiveMenu={setActiveMenu} setRoles={setRoles} setCurScenario={setCurScenario} />;
