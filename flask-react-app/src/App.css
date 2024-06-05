@@ -234,3 +234,57 @@ select {
 .dashboard-container.sidebar-visible {
   left: 360px; /* Отступ слева от боковой панели, когда она видима */
 }
+
+
+.my-scenarios-container {
+  padding: 20px;
+}
+
+.my-scenarios-header {
+  font-size: 30px;
+  font-weight: bold;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.scenario-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  padding: 10px;
+  background-color: #f9f9f9;
+  border-radius: 4px;
+  transition: background-color 0.3s;
+}
+
+.scenario-item:hover {
+  background-color: #f1f1f1;
+}
+
+.scenario-name {
+  flex-grow: 1;
+  font-size: 18px;
+}
+
+.scenario-buttons button {
+  margin-left: 10px;
+  padding: 8px 12px;
+  font-size: 14px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  background-color: #007bff;
+  color: #fff;
+}
+
+.toggle-sidebar-button {
+  margin-left: 10px;
+  padding: 8px 12px;
+  font-size: 14px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}

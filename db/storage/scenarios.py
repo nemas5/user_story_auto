@@ -52,10 +52,12 @@ def get_scenario(scenario: int, session: Session):
             new_sub["ps_id"] = sub[2]
             new_sub["r_id"] = sub[3]
             new_sub["role"] = sub[4]
-            new_sub["main"] = sub[5]
+            new_sub["name"] = sub[5]
             new_sub["components"] = list()
             query = (
-                select(ScenarioSubs2ORM.ss2_id, ScenarioSubs2ORM.ss2_enabled, ScenarioSubs2ORM.ps2_id)
+                select(ScenarioSubs2ORM.ss2_id, ScenarioSubs2ORM.ss2_enabled,
+                       ScenarioSubs2ORM.ps2_id, PatternSubs2ORM.ps2_name
+                       )
                 .where(ScenarioSubs2ORM.ss_id == sub[0])
                 .select_from(ScenarioSubs2ORM)
                 .join(PatternSubs2ORM, PatternSubs2ORM.ps2_id == ScenarioSubs2ORM.ps2_id)
@@ -66,7 +68,7 @@ def get_scenario(scenario: int, session: Session):
                 new_sub2["id"] = sub2[0]
                 new_sub2["enabled"] = bool(sub2[1])
                 new_sub2["ps2_id"] = sub2[2]
-                new_sub2["name"] = sub[3]
+                new_sub2["name"] = sub2[3]
                 new_sub["components"].append(new_sub2)
             new_main["components"].append(new_sub)
         data["components"].append(new_main)
@@ -74,7 +76,12 @@ def get_scenario(scenario: int, session: Session):
 
 
 def get_scenario_by_user(user: str, session: Session):
-    pass
+    query = (
+        select(ScenarioORM.s_id, ScenarioORM.s_name)
+        .where(ScenarioORM.u_id == user)
+    )
+    found_scenarios = session.execute(query).all()
+    return found_scenarios
 
 
 def insert_scenario(orm_obj,
@@ -138,3 +145,12 @@ def delete_scenario(scenario: int, session: Session):
     query = (delete(ScenarioORM).where(ScenarioORM.s_id == scenario))
     session.execute(query)
     session.commit()
+
+
+def get_roles_by_scenario(scenario: int, session: Session):
+    query = (
+        select(RoleORM.r_id, RoleORM.r_name)
+        .where(RoleORM.s_id == scenario)
+    )
+    found_roles = session.execute(query).all()
+    return found_roles

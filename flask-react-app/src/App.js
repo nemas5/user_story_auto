@@ -135,6 +135,11 @@ function DocumentViewer({ documents }) {
   );
 }
 
+
+
+
+
+
 function CreateScenario({ roles, setActiveMenu, setDocuments }) {
   const [userStory, setUserStory] = useState('Корпоративная система');
   const [systems, setSystems] = useState([]);
@@ -264,6 +269,12 @@ function CreateScenario({ roles, setActiveMenu, setDocuments }) {
   );
 }
 
+
+
+
+
+
+
 function Roles({ roles, setRoles, setActiveMenu }) {
 
   const addRole = () => {
@@ -284,7 +295,7 @@ function Roles({ roles, setRoles, setActiveMenu }) {
    // console.log('Пропустить');
   //};
 
-   const handleApply = () => {
+  const handleApply = () => {
     console.log('Применить', roles);
     setActiveMenu('createScenario');
   };
@@ -313,7 +324,321 @@ function Roles({ roles, setRoles, setActiveMenu }) {
       </div>
     </div>);
 }
-//<button onClick={handleSkip} className="skip-button">Пропустить</button>
+
+
+
+
+function EditScenario({ editedRoles, setActiveMenu, curScenario }) {
+  const [userStory, setUserStory] = useState('');
+  const [systems, setSystems] = useState([]);
+
+  useEffect(() => {
+    const fetchScenarioData = async () => {
+      try {
+        const response = await fetch(`http://localhost:3000/api/view/edit/${curScenario}`);
+        const result = await response.json();
+        if (result) {
+          setSystems(result.data);
+          setUserStory(result.name);
+        } else {
+          console.error('Received data is not as expected:', result);
+        }
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    };
+    fetchScenarioData();
+    console.log(systems);
+  }, [curScenario]);
+
+  const toggleSystem = (index) => {
+    const newSystems = [...systems];
+    newSystems[index].enabled = !newSystems[index].enabled;
+    setSystems(newSystems);
+  };
+
+  const toggleComponent = (systemIndex, componentIndex) => {
+    const newSystems = [...systems];
+    newSystems[systemIndex].components[componentIndex].enabled = !newSystems[systemIndex].components[componentIndex].enabled;
+    setSystems(newSystems);
+  };
+
+  const toggleSubcomponent = (systemIndex, componentIndex, subcomponentIndex) => {
+    const newSystems = [...systems];
+    newSystems[systemIndex].components[componentIndex].components[subcomponentIndex].enabled = !newSystems[systemIndex].components[componentIndex].components[subcomponentIndex].enabled;
+    setSystems(newSystems);
+  };
+
+  const handleRoleChange = (systemIndex, componentIndex, role) => {
+    const newSystems = [...systems];
+    newSystems[systemIndex].components[componentIndex].role = role;
+    setSystems(newSystems);
+  };
+
+  const handleUpdateScenario = async () => {
+    let res = await fetch(`http://localhost:3000/api/scenarios/${curScenario}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ systems, name: userStory, roles: editedRoles })
+    });
+
+    if (res.ok) {
+      console.log('Scenario updated successfully');
+      setActiveMenu('viewDocuments');
+    } else {
+      console.error('Failed to update scenario');
+    }
+  };
+
+  const getRoleOptions = () => {
+    const roleOptions = [];
+    // Добавляем роли из updatedRoles
+    for (const roleId in editedRoles.updatedRoles) {
+      roleOptions.push(editedRoles.updatedRoles[roleId]);
+    }
+    // Добавляем новые роли из newRoles
+    roleOptions.push(...editedRoles.newRoles);
+    return roleOptions;
+  };
+
+  return (
+    <div className="scenario-container">
+      <h1>Редактирование сценария</h1>
+      <input
+        type="text"
+        value={userStory}
+        onChange={(e) => setUserStory(e.target.value)}
+        className="user-story-input"
+      />
+      <h2>Выберите составляющие системы</h2>
+      {systems.length > 0 && systems.map((system, systemIndex) => (
+        <div key={systemIndex} className="system-container">
+          <label className="switch">
+            <input
+              type="checkbox"
+              checked={system.enabled}
+              onChange={() => toggleSystem(systemIndex)}
+            />
+            <span className="slider round"></span>
+          </label>
+          <span>{system.name}</span>
+          {system.enabled && system.components && system.components.map((component, componentIndex) => (
+            <div key={componentIndex} className="component-container">
+              <label className="switch">
+                <input
+                  type="checkbox"
+                  checked={component.enabled}
+                  onChange={() => toggleComponent(systemIndex, componentIndex)}
+                />
+                <span className="slider round"></span>
+              </label>
+              <span>{component.name}</span>
+              <select
+                value={editedRoles.updatedRoles[component.r_id] || 'Любой пользователь'}
+                onChange={(e) => handleRoleChange(systemIndex, componentIndex, e.target.value)}
+                disabled={!component.enabled}
+              >
+                <option value='Любой пользователь'>Выбор роли</option>
+                {getRoleOptions().map(role => (
+                  <option key={role} value={role}>{role}</option>
+                ))}
+              </select>
+              {component.enabled && component.components && component.components.map((subcomponent, subcomponentIndex) => (
+                <div key={subcomponentIndex} className="subcomponent-container">
+                  <label className="switch">
+                    <input
+                      type="checkbox"
+                      checked={subcomponent.enabled}
+                      onChange={() => toggleSubcomponent(systemIndex, componentIndex, subcomponentIndex)}
+                    />
+                    <span className="slider round"></span>
+                  </label>
+                  <span>{subcomponent.name}</span>
+                </div>
+              ))}
+            </div>
+          ))}
+        </div>
+      ))}
+      <button onClick={handleUpdateScenario} className="create-scenario-button">
+        Обновить сценарий
+      </button>
+    </div>
+  );
+}
+
+
+
+
+
+function EditRoles({ rolesFromServer, setActiveMenu, setEditedRoles }) {
+  const [newRoles, setNewRoles] = useState([]);
+  const [roles, setRoles] = useState({});
+
+  useEffect(() => {
+    // Инициализация ролей, полученных с сервера
+    setRoles(rolesFromServer);
+  }, [rolesFromServer]);
+
+  const addRole = () => {
+    setNewRoles([...newRoles, '']);
+  };
+
+  const removeRole = (index, isExistingRole = false) => {
+    if (isExistingRole) {
+      const updatedRoles = { ...roles };
+      delete updatedRoles[index];
+      setRoles(updatedRoles);
+    } else {
+      setNewRoles(newRoles.filter((_, i) => i !== index));
+    }
+  };
+
+  const updateRole = (index, newRole, isExistingRole = false) => {
+    if (isExistingRole) {
+      const updatedRoles = { ...roles };
+      updatedRoles[index] = newRole;
+      setRoles(updatedRoles);
+    } else {
+      const updatedNewRoles = [...newRoles];
+      updatedNewRoles[index] = newRole;
+      setNewRoles(updatedNewRoles);
+    }
+  };
+
+  const handleApply = () => {
+    const dataToSend = {
+      updatedRoles: roles,
+      newRoles: newRoles
+    };
+    setEditedRoles(dataToSend);
+    setActiveMenu('editScenario');
+    console.log('Применить', dataToSend);
+  };
+
+  return (
+    <div className="scenario-container">
+      <h1>Задание ролей пользователей системы</h1>
+      {Object.keys(roles).map((id) => (
+        <div key={id} className="role-input-container">
+          <input
+            type="text"
+            value={roles[id]}
+            onChange={(e) => updateRole(id, e.target.value, true)}
+            className="role-input"
+          />
+          <button onClick={() => removeRole(id, true)} className="remove-button">
+            Удалить
+          </button>
+        </div>
+      ))}
+      {newRoles.map((role, index) => (
+        <div key={index} className="role-input-container">
+          <input
+            type="text"
+            value={role}
+            onChange={(e) => updateRole(index, e.target.value)}
+            className="role-input"
+          />
+          <button onClick={() => removeRole(index)} className="remove-button">
+            Удалить
+          </button>
+        </div>
+      ))}
+      <button onClick={addRole} className="add-role-button">
+        Добавить роль
+      </button>
+      <div className="action-buttons">
+        <button onClick={handleApply} className="apply-button">Применить</button>
+      </div>
+    </div>
+  );
+}
+
+
+
+
+
+
+function MyScenarios({ setActiveMenu, setRoles, setCurScenario }) {
+  const [scenarios, setScenarios] = useState([]);
+
+  useEffect(() => {
+    // Функция для получения списка сценариев с сервера
+    const fetchScenarios = async () => {
+      try {
+        const response = await fetch('http://localhost:3000/api/view/view');
+        const data = await response.json();
+        setScenarios(data);
+      } catch (error) {
+        console.error('Ошибка при получении сценариев:', error);
+      }
+    };
+
+    fetchScenarios();
+  }, []);
+
+  const handleEdit = async (id) => {
+    try {
+      const response = await fetch(`http://localhost:3000/api/view/role/${id}`);
+      const data = await response.json();
+      setCurScenario(id);
+      setRoles(data);
+      setActiveMenu('editRoles');
+      // Добавьте логику для обработки результата редактирования
+    } catch (error) {
+      console.error('Ошибка при редактировании сценария:', error);
+    }
+  };
+
+  const handleDelete = async (id) => {
+    try {
+      const response = await fetch(`http://localhost:3000/api/scenarios/${id}`, { method: 'DELETE' });
+      const data = await response.json();
+      console.log('Удаление сценария:', data);
+      setScenarios(scenarios.filter(scenario => scenario.id !== id));
+    } catch (error) {
+      console.error('Ошибка при удалении сценария:', error);
+    }
+  };
+
+  const handleExport = async (id) => {
+    try {
+      const response = await fetch(`http://localhost:3000/api/scenarios/${id}/export`, { method: 'POST' });
+      const data = await response.json();
+      console.log('Экспорт сценария:', data);
+      // Добавьте логику для обработки результата экспорта
+    } catch (error) {
+      console.error('Ошибка при экспорте сценария:', error);
+    }
+  };
+
+  return (
+    <div className="my-scenarios-container">
+      <h2 className="my-scenarios-header">Выберите сценарий для редактирования</h2>
+      {scenarios.map((scenario) => (
+        <div key={scenario.id} className="scenario-item">
+          <span className="scenario-name">{scenario.name}</span>
+          <div className="scenario-buttons">
+            <button className="edit" onClick={() => handleEdit(scenario.id)}>Редактировать</button>
+            <button className="delete" onClick={() => handleDelete(scenario.id)}>Удалить</button>
+            <button className="export" onClick={() => handleExport(scenario.id)}>Экспорт</button>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+
+
+
+
+
+
+
 
 function DashboardPage({ username, toggleSidebar, sidebarVisible, activeMenu, setActiveMenu }) {
     const dashboardStyle = {
@@ -321,7 +646,7 @@ function DashboardPage({ username, toggleSidebar, sidebarVisible, activeMenu, se
     background: '#f0f0f0',
     padding: '20px',
     position: 'fixed',
-    top: '50px',
+    top: '70px',
     left: `${sidebarVisible ? '360px' : '20px'}`,
     right: '20px',
     bottom: '20px',
@@ -345,16 +670,23 @@ function DashboardPage({ username, toggleSidebar, sidebarVisible, activeMenu, se
 
   const [documents, setDocuments] = useState([]);
 
+  const [curScenario, setCurScenario] = useState('');
+
+  const [editedRoles, setEditedRoles] = useState({});
+
   const renderContent = () => {
     switch (activeMenu) {
       case 'viewProfiles':
         return <h2>Просмотр профилей</h2>;
       case 'createRoles':
+
         return (<Roles roles={roles} setRoles={setRoles} setActiveMenu={setActiveMenu} />);
       case 'myScenarios':
-        return <h2>Мои сценарии</h2>;
-      case 'editScenarios':
-        return <h2>Редактирование пользовательских сценариев</h2>;
+        return <MyScenarios setActiveMenu={setActiveMenu} setRoles={setRoles} setCurScenario={setCurScenario} />;
+      case 'editScenario':
+        return <EditScenario editedRoles={editedRoles} setActiveMenu={setActiveMenu} curScenario={curScenario} />;
+      case 'editRoles':
+        return <EditRoles rolesFromServer={roles} setActiveMenu={setActiveMenu} setEditedRoles={setEditedRoles}/>
       case 'createScenario':
         return <CreateScenario roles={roles} setActiveMenu={setActiveMenu} setDocuments={setDocuments} />;
       case 'viewDocuments':

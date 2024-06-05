@@ -15,6 +15,7 @@ blueprint_create = Blueprint('bp_create', __name__)
 def create_scenario():
     if request.method == 'GET':
         new = Scenario(user=session["user_id"])
+        print(new.data)
         return make_response(jsonify(new.data), 200)
     else:
         db_session = get_session()
@@ -48,18 +49,9 @@ def create_scenario():
                                                 ss_id=new_sub_id,
                                                 ps2_id=sub2["ps2_id"])
                     insert_scenario(new_sub2, db_session)
-
         sc = Scenario(new_sc_id, session["user_id"])
+        print(sc.data)
         sc.build_docx()
         return make_response(jsonify(
             {'documentUrl': f'http://localhost:3000/api/download/download/{new_sc_id}'}
         ), 200)
-
-
-@blueprint_create.route('/role', methods=['GET', 'POST'])
-def scenario_roles():
-    if request.method == 'GET':
-        pass
-    else:
-        print(request.json)
-
