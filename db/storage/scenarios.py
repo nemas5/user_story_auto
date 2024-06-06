@@ -110,39 +110,44 @@ def insert_role(role: RoleORM, session: Session) -> int:
     return new_id
 
 
-def update_scenario(s_orm: ScenarioORM, session: Session):
-    query = (update(ScenarioORM).where(ScenarioORM.s_id == s_orm.s_id).values(s_name=s_orm.name))
+def update_scenario(s_id: int, name: str, session: Session):
+    query = (update(ScenarioORM).where(ScenarioORM.s_id == s_id).values(s_name=name))
     session.execute(query)
     session.commit()
 
 
-def update_scenario_sub(ss_orm: ScenarioSubsORM, session: Session):
+def update_scenario_sub(ss_id, r_id, enabled, session: Session):
     query = (update(ScenarioSubsORM)
-             .where(ScenarioSubsORM.sm_id == ss_orm.sm_id,
-                    ScenarioSubsORM.ps_id == ss_orm.ps_id)
-             .values(sm_enabled=ss_orm.sm_enabled))
+             .where(ScenarioSubsORM.ss_id == ss_id)
+             .values(ss_enabled=enabled, r_id=r_id))
     session.execute(query)
     session.commit()
 
 
-def update_scenario_main(sm_orm: ScenarioMainsORM, session: Session) -> int:
+def update_scenario_sub2(ss2_id, enabled, session: Session):
+    query = (update(ScenarioSubs2ORM)
+             .where(ScenarioSubs2ORM.ss2_id == ss2_id)
+             .values(ss2_enabled=enabled))
+    session.execute(query)
+    session.commit()
+
+
+def update_scenario_main(sm_id: int, enabled: bool, session: Session) -> None:
     query = (update(ScenarioMainsORM)
-             .where(ScenarioMainsORM.s_id == sm_orm.s_id,
-                    ScenarioMainsORM.p_id == sm_orm.p_id)
-             .values(sm_enabled=sm_orm.sm_enabled))
+             .where(ScenarioMainsORM.sm_id == sm_id)
+             .values(sm_enabled=enabled))
     session.execute(query)
     session.commit()
-    query = (
-        select(ScenarioMainsORM.s_id)
-        .where(ScenarioMainsORM.s_id == sm_orm.s_id,
-               ScenarioMainsORM.p_id == sm_orm.p_id)
-    )
-    found_scenario = session.execute(query).first()
-    return found_scenario[0]
 
 
 def delete_scenario(scenario: int, session: Session):
     query = (delete(ScenarioORM).where(ScenarioORM.s_id == scenario))
+    session.execute(query)
+    session.commit()
+
+
+def delete_role(r_id: int, session: Session):
+    query = (delete(RoleORM).where(RoleORM.r_id == r_id))
     session.execute(query)
     session.commit()
 
@@ -154,3 +159,9 @@ def get_roles_by_scenario(scenario: int, session: Session):
     )
     found_roles = session.execute(query).all()
     return found_roles
+
+
+def update_role(r_id: int, r_name: str, session: Session):
+    query = (update(RoleORM).where(RoleORM.r_id == r_id).values(r_name=r_name))
+    session.execute(query)
+    session.commit()

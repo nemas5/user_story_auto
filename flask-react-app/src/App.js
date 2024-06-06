@@ -126,19 +126,46 @@ function TopBar({ toggleSidebar, username }) {
 }
 
 function DocumentViewer({ documents }) {
-  const docs = documents.map(doc => ({ uri: doc.url }));
-  console.log(docs);
+  console.log(documents);
+  const handleExport = async (id) => {
+    console.log(id);
+    try {
+      const response = await fetch(`http://localhost:3000/api/download/download/${id}`,
+      {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      if (response.ok) {
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${id}.docx`; // Укажите имя файла для загрузки
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        window.URL.revokeObjectURL(url);
+      } else {
+        console.error('Failed to export file');
+      }
+    } catch (error) {
+      console.error('Error exporting file:', error);
+    }
+  };
+
   return (
-    <div style={{ width: '100%', height: '100%' }}>
-      <DocViewer documents={docs} pluginRenderers={ DocViewerRenderers } />
+      <div className="my-scenarios-container">
+        <div className="scenario-item">
+          <span className="scenario-name">Сценарий успешно создан</span>
+          <div className="scenario-buttons">
+            <button className="export" onClick={() => handleExport(documents)}>Экспорт</button>
+          </div>
+        </div>
     </div>
   );
 }
-
-
-
-
-
 
 function CreateScenario({ roles, setActiveMenu, setDocuments }) {
   const [userStory, setUserStory] = useState('Корпоративная система');
@@ -196,7 +223,7 @@ function CreateScenario({ roles, setActiveMenu, setDocuments }) {
 
     if (res.ok) {
       const data = await res.json();
-      setDocuments([{ url: data.documentUrl }]);
+      setDocuments(data);
       setActiveMenu('viewDocuments');
     } else {
       console.error('Failed to create scenario');
@@ -270,11 +297,6 @@ function CreateScenario({ roles, setActiveMenu, setDocuments }) {
 }
 
 
-
-
-
-
-
 function Roles({ roles, setRoles, setActiveMenu }) {
 
   const addRole = () => {
@@ -326,9 +348,6 @@ function Roles({ roles, setRoles, setActiveMenu }) {
 }
 
 
-
-
-
 function EditScenario({ editedRoles, setActiveMenu, curScenario }) {
   const [userStory, setUserStory] = useState('');
   const [systems, setSystems] = useState([]);
@@ -341,6 +360,7 @@ function EditScenario({ editedRoles, setActiveMenu, curScenario }) {
         if (result) {
           setSystems(result.data);
           setUserStory(result.name);
+          console.log(editedRoles);
         } else {
           console.error('Received data is not as expected:', result);
         }
@@ -376,16 +396,17 @@ function EditScenario({ editedRoles, setActiveMenu, curScenario }) {
   };
 
   const handleUpdateScenario = async () => {
-    let res = await fetch(`http://localhost:3000/api/scenarios/${curScenario}`, {
-      method: 'PUT',
+    let res = await fetch(`http://localhost:3000/api/view/edit/${curScenario}`, {
+      method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({ systems, name: userStory, roles: editedRoles })
+      body: JSON.stringify({ systems, name: userStory, roles: editedRoles, s_id: curScenario })
     });
 
     if (res.ok) {
       console.log('Scenario updated successfully');
+      // добавить setDocument
       setActiveMenu('viewDocuments');
     } else {
       console.error('Failed to update scenario');
@@ -436,11 +457,10 @@ function EditScenario({ editedRoles, setActiveMenu, curScenario }) {
               </label>
               <span>{component.name}</span>
               <select
-                value={component.role || 'Любой пользователь'}
                 onChange={(e) => handleRoleChange(systemIndex, componentIndex, e.target.value)}
                 disabled={!component.enabled}
               >
-                <option value='Любой пользователь'>Выбор роли</option>
+                <option value='Выбор роли'>Выбор роли</option>
                 {getRoleOptions().map(role => (
                   <option key={role} value={role}>{role}</option>
                 ))}
@@ -470,12 +490,10 @@ function EditScenario({ editedRoles, setActiveMenu, curScenario }) {
 }
 
 
-
-
-
 function EditRoles({ rolesFromServer, setActiveMenu, setEditedRoles }) {
   const [newRoles, setNewRoles] = useState([]);
   const [roles, setRoles] = useState({});
+  const [deletedRoles, setDeletedRoles] = useState([]); // добавленный массив для хранения удалённых ролей
 
   useEffect(() => {
     // Инициализация ролей, полученных с сервера
@@ -491,6 +509,7 @@ function EditRoles({ rolesFromServer, setActiveMenu, setEditedRoles }) {
       const updatedRoles = { ...roles };
       delete updatedRoles[index];
       setRoles(updatedRoles);
+      setDeletedRoles([...deletedRoles, index]); // добавляем id удалённой роли в массив deletedRoles
     } else {
       setNewRoles(newRoles.filter((_, i) => i !== index));
     }
@@ -511,7 +530,8 @@ function EditRoles({ rolesFromServer, setActiveMenu, setEditedRoles }) {
   const handleApply = () => {
     const dataToSend = {
       updatedRoles: roles,
-      newRoles: newRoles
+      newRoles: newRoles,
+      deletedRoles: deletedRoles // добавляем удалённые роли в данные для отправки
     };
     setEditedRoles(dataToSend);
     setActiveMenu('editScenario');
@@ -558,10 +578,6 @@ function EditRoles({ rolesFromServer, setActiveMenu, setEditedRoles }) {
 }
 
 
-
-
-
-
 function MyScenarios({ setActiveMenu, setRoles, setCurScenario }) {
   const [scenarios, setScenarios] = useState([]);
 
@@ -595,7 +611,7 @@ function MyScenarios({ setActiveMenu, setRoles, setCurScenario }) {
 
   const handleDelete = async (id) => {
     try {
-      const response = await fetch(`http://localhost:3000/api/scenarios/${id}`, { method: 'DELETE' });
+      const response = await fetch(`http://localhost:3000/api/view/delete/${id}`, { method: 'DELETE' });
       const data = await response.json();
       console.log('Удаление сценария:', data);
       setScenarios(scenarios.filter(scenario => scenario.id !== id));
@@ -606,12 +622,28 @@ function MyScenarios({ setActiveMenu, setRoles, setCurScenario }) {
 
   const handleExport = async (id) => {
     try {
-      const response = await fetch(`http://localhost:3000/api/scenarios/${id}/export`, { method: 'POST' });
-      const data = await response.json();
-      console.log('Экспорт сценария:', data);
-      // Добавьте логику для обработки результата экспорта
+      const response = await fetch(`http://localhost:3000/api/download/download/${id}`,
+      {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      if (response.ok) {
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${id}.docx`; // Укажите имя файла для загрузки
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        window.URL.revokeObjectURL(url);
+      } else {
+        console.error('Failed to export file');
+      }
     } catch (error) {
-      console.error('Ошибка при экспорте сценария:', error);
+      console.error('Error exporting file:', error);
     }
   };
 
@@ -633,11 +665,82 @@ function MyScenarios({ setActiveMenu, setRoles, setCurScenario }) {
 }
 
 
+function UserProfiles({ setActiveMenu }) {
+  const [users, setUsers] = useState([]);
 
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const response = await fetch('http://localhost:3000/api/users');
+        const result = await response.json();
+        if (result) {
+          setUsers(result);
+        } else {
+          console.error('Received data is not as expected:', result);
+        }
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    };
+    fetchUsers();
+  }, []);
 
+  const handleDeleteUser = async (userId) => {
+    try {
+      const response = await fetch(`http://localhost:3000/api/users/del/${userId}`, {
+        method: 'DELETE'
+      });
+      if (response.ok) {
+        setUsers(users.filter(user => user.id !== userId));
+        console.log('User deleted successfully');
+      } else {
+        console.error('Failed to delete user');
+      }
+    } catch (error) {
+      console.error('Error deleting user:', error);
+    }
+  };
 
+  const handlePromoteUser = async (userId) => {
+    try {
+      const response = await fetch(`http://localhost:3000/api/users/prom/${userId}`,
+      {
+        method: 'POST'
+      });
+      if (response.ok) {
+        const updatedUser = await response.json();
+        console.log(updatedUser);
+        setUsers(users.map(user => user.id === userId ? updatedUser : user));
+        console.log('User promoted successfully');
+      } else {
+        console.error('Failed to promote user');
+      }
+    } catch (error) {
+      console.error('Error promoting user:', error);
+    }
+  };
 
-
+  return (
+    <div className="user-profiles-container">
+      <h1>Просмотр пользовательских профилей</h1>
+      {users.map(user => (
+        <div key={user.id} className="user-profile">
+          <span>{user.id}</span>
+          <div className="user-actions">
+            {user.role === 'admin' ? (
+              <span>Администратор</span>
+            ) : (
+              <>
+                <button onClick={() => handlePromoteUser(user.id)}>Назначить администратором</button>
+                <button onClick={() => handleDeleteUser(user.id)}>Удалить</button>
+              </>
+            )}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
 
 
 function DashboardPage({ username, toggleSidebar, sidebarVisible, activeMenu, setActiveMenu }) {
@@ -662,11 +765,19 @@ function DashboardPage({ username, toggleSidebar, sidebarVisible, activeMenu, se
     margin: 'auto'
   };
 
-  const [roles, setRoles] = useState([
+  const initialRoles = [
     'Неавторизованный пользователь',
     'Пользователь',
     'Администратор',
-  ]);
+  ];
+
+  const [roles, setRoles] = useState(initialRoles);
+
+  useEffect(() => {
+    if (activeMenu === 'createRoles') {
+      setRoles([...initialRoles]);  // reset roles to initial roles
+    }
+  }, [activeMenu]);
 
   const [documents, setDocuments] = useState([]);
 
@@ -677,7 +788,7 @@ function DashboardPage({ username, toggleSidebar, sidebarVisible, activeMenu, se
   const renderContent = () => {
     switch (activeMenu) {
       case 'viewProfiles':
-        return <h2>Просмотр профилей</h2>;
+        return <UserProfiles setActiveMenu={setActiveMenu} />;
       case 'createRoles':
         return (<Roles roles={roles} setRoles={setRoles} setActiveMenu={setActiveMenu} />);
       case 'myScenarios':

@@ -77,4 +77,6 @@ class Scenario:
                                 )
 
                                 composer.append(sub2["doc"])
+        if not(os.path.exists(f'data_files/user_data/{self.user}')):
+            os.mkdir(f'data_files/user_data/{self.user}')
         doc.save(f'data_files/user_data/{self.user}/{self.id}.docx')
