@@ -1,0 +1,340 @@
+.login-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+}
+
+.rounded-input {
+  border-radius: 8px; /* Скругляем углы поля ввода */
+  padding: 8px;
+  margin-bottom: 16px;
+  width: 300px;
+  border: 1px solid #ccc;
+  outline: none;
+}
+
+.rounded-button {
+  border-radius: 8px; /* Скругляем углы кнопки */
+  padding: 8px 16px;
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  outline: none;
+}
+
+.rounded-button:hover {
+  background-color: #0056b3; /* Изменяем цвет кнопки при наведении */
+}
+
+.sidebar-toggle-button {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background-color: transparent;
+  color: #007bff;
+  border: none;
+  cursor: pointer;
+  font-size: 20px;
+}
+
+.sidebar-button {
+  margin-bottom: 10px; /* Отступ между кнопками */
+  width: 100%;
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  padding: 10px;
+  font-size: 16px;
+}
+
+.role-input-container {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.role-input {
+  flex: 1;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  margin-right: 10px;
+}
+
+.remove-button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 10px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.add-role-button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  width: 20%;
+  margin-top: 10px;
+}
+
+.action-buttons {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 20px;
+}
+
+.skip-button, .apply-button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-left: 10px;
+}
+
+.skip-button:hover, .apply-button:hover, .remove-button:hover, .add-role-button:hover {
+  background-color: #0056b3;
+}
+
+
+
+
+.scenario-container {
+  padding: 20px;
+}
+
+/* Стили для систем */
+.system-container {
+  margin-bottom: 20px;
+}
+
+/* Стили для компонентов первого уровня */
+.component-container {
+  margin-left: 20px;
+  margin-top: 10px;
+}
+
+/* Стили для компонентов второго уровня */
+.subcomponent-container {
+  margin-left: 40px; /* Большее смещение для вложенных компонентов */
+  margin-top: 5px;
+}
+
+/* Стили для переключателей */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 45px;
+  height: 20px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  transition: 0.4s;
+  border-radius: 10px;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 14px;
+  width: 14px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: 0.4s;
+  border-radius: 50%;
+}
+
+input:checked + .slider {
+  background-color: #007bff;
+}
+
+input:checked + .slider:before {
+  transform: translateX(14px);
+}
+
+/* Стили для текста */
+span {
+  margin-left: 10px;
+  vertical-align: middle;
+}
+
+/* Стили для кнопки создания сценария */
+.create-scenario-button {
+  display: block;
+  margin-top: 20px;
+  padding: 10px 20px;
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.create-scenario-button:hover {
+  background-color: #0056b3;
+}
+
+/* Стили для ввода названия user story */
+.user-story-input {
+  display: block;
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 20px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+/* Стили для выбора роли */
+select {
+  margin-left: 10px;
+  padding: 5px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+/* Стили для контейнера панели */
+.dashboard-container {
+  position: fixed;
+  top: 50px; /* Отступ сверху равен высоте верхней панели */
+  left: 20px;
+  right: 20px;
+  bottom: 20px;
+  background: #f0f0f0;
+  padding: 20px;
+  border-radius: 10px; /* Скругление углов */
+  overflow-y: auto; /* Вертикальная прокрутка */
+  max-height: calc(100vh - 90px); /* Высота экрана минус отступы */
+  transition: left 0.3s ease; /* Анимация при изменении отступа слева */
+}
+
+.dashboard-container.sidebar-visible {
+  left: 360px; /* Отступ слева от боковой панели, когда она видима */
+}
+
+
+.my-scenarios-container {
+  padding: 20px;
+}
+
+.my-scenarios-header {
+  font-size: 30px;
+  font-weight: bold;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.scenario-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  padding: 10px;
+  background-color: #f9f9f9;
+  border-radius: 4px;
+  transition: background-color 0.3s;
+}
+
+.scenario-item:hover {
+  background-color: #f1f1f1;
+}
+
+.scenario-name {
+  flex-grow: 1;
+  font-size: 18px;
+}
+
+.scenario-buttons button {
+  margin-left: 10px;
+  padding: 8px 12px;
+  font-size: 14px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  background-color: #007bff;
+  color: #fff;
+}
+
+.toggle-sidebar-button {
+  margin-left: 10px;
+  padding: 8px 12px;
+  font-size: 14px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+
+.user-profiles-container h1 {
+  text-align: center;
+  margin-bottom: 20px;
+  font-size: 30px;
+  color: #333;
+}
+
+.user-profile {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+}
+
+.user-profile:last-child {
+  border-bottom: none;
+}
+
+.user-profile span {
+  font-size: 16px;
+  color: #333;
+}
+
+.user-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.user-actions button {
+  padding: 5px 10px;
+  font-size: 14px;
+  color: #fff;
+  background-color: #007bff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.user-actions button:hover {
+  background-color: #0056b3;
+}
+
+.user-actions span {
+  font-size: 16px;
+  color: #555;
+}
